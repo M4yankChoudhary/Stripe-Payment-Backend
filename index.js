@@ -26,8 +26,20 @@ app.post("/create-payment-intent", async (req, res) => {
     amount: calculateOrderAmount(items),
     currency: currency,
   });
+
+  // Create or retrieve the Stripe Customer object associated with your user.
+  let customer = await stripe.customers.create();
+  
+  // Create an ephemeral key for the Customer; this allows the app to display saved payment methods and save new ones
+  const ephemeralKey = await stripe.ephemeralKeys.create(
+    {customer: customer.id},
+    {apiVersion: '2020-08-27'}
+  );  
+
   res.send({
     clientSecret: paymentIntent.client_secret,
+    ephemeralK: ephemeralKey.secret,
+    current_customer: customer.id
   });
 });
 app.get("/test", (req, res) => {
@@ -81,32 +93,12 @@ app.post("/balance", async (re, res) => {
   });
 });
 
-app.post("/addcard", (req, res) => {
-  const { details } = req.body;
-  const { accoundId } = req.body;
-  stripe.accounts.createExternalAccount(
-    accoundId,
-    details,
-    function (err, card) {
-      // asynchronously called
-      if (err) return res.send(err);
-      res.send(card);
-    }
-  );
-});
-
 // app.post("/addcard", (req, res) => {
+//   const { details } = req.body;
+//   const { accoundId } = req.body;
 //   stripe.accounts.createExternalAccount(
-//     "acct_1GjKMqCpjAiF3DpZ",
-//     {
-//       external_account: {
-//         object: "card",
-//         number: "4000056655665556",
-//         exp_month: 5,
-//         exp_year: 2021,
-//         currency: "usd",
-//       },
-//     },
+//     accoundId,
+//     details,
 //     function (err, card) {
 //       // asynchronously called
 //       if (err) return res.send(err);
@@ -114,6 +106,26 @@ app.post("/addcard", (req, res) => {
 //     }
 //   );
 // });
+
+app.post("/addcard", (req, res) => {
+  stripe.accounts.createExternalAccount(
+    "acct_1KjjhwHxUOYLqICx",
+    {
+      external_account: {
+        object: "card",
+        number: "4000056655665556",
+        exp_month: 5,
+        exp_year: 2021,
+        currency: "usd",
+      },
+    },
+    function (err, card) {
+      // asynchronously called
+      if (err) return res.send(err);
+      res.send(card);
+    }
+  );
+});
 
 app.post("/createAccount", (req, res) => {
   stripe.accounts.create(
