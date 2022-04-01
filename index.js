@@ -39,7 +39,8 @@ app.post("/create-payment-intent", async (req, res) => {
   res.send({
     clientSecret: paymentIntent.client_secret,
     ephemeralK: ephemeralKey.secret,
-    current_customer: customer.id
+    current_customer: customer.id,
+    publisherKey: "pk_test_51KhqrySJgjKVvQEwYUTn1XOegq8iLYQ7tFvI4BwSq88Q4GFf3lXQ38Tz4SRBbfHvCw9LXK4GTeaUW937VP06jlix00BPHZhEmo"
   });
 });
 app.get("/test", (req, res) => {
@@ -130,7 +131,7 @@ app.post("/createAccount", (req, res) => {
     req.body,
     function (err, account) {
       // asynchronously called
-      err ? res.send(err) : res.send(account);
+      err ? res.send(err) : res.send(account.id);
     }
   );
 });
