@@ -82,17 +82,11 @@ app.post("/balance", async (re, res) => {
 });
 
 app.post("/addcard", (req, res) => {
+  const { details } = req.body;
+  const { accoundId } = req.body;
   stripe.accounts.createExternalAccount(
-    "acct_1GjKMqCpjAiF3DpZ",
-    {
-      external_account: {
-        object: "card",
-        number: "4000056655665556",
-        exp_month: 5,
-        exp_year: 2021,
-        currency: "usd",
-      },
-    },
+    accoundId,
+    details,
     function (err, card) {
       // asynchronously called
       if (err) return res.send(err);
@@ -100,6 +94,26 @@ app.post("/addcard", (req, res) => {
     }
   );
 });
+
+// app.post("/addcard", (req, res) => {
+//   stripe.accounts.createExternalAccount(
+//     "acct_1GjKMqCpjAiF3DpZ",
+//     {
+//       external_account: {
+//         object: "card",
+//         number: "4000056655665556",
+//         exp_month: 5,
+//         exp_year: 2021,
+//         currency: "usd",
+//       },
+//     },
+//     function (err, card) {
+//       // asynchronously called
+//       if (err) return res.send(err);
+//       res.send(card);
+//     }
+//   );
+// });
 
 app.post("/createAccount", (req, res) => {
   stripe.accounts.create(
