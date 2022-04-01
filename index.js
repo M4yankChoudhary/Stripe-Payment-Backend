@@ -103,17 +103,7 @@ app.post("/addcard", (req, res) => {
 
 app.post("/createAccount", (req, res) => {
   stripe.accounts.create(
-    {
-      type: "express",
-      country: "US",
-      email: "mayank@gmail.com",
-      requested_capabilities: ["card_payments", "transfers"],
-      business_type: "individual",
-      tos_acceptance: {
-        date: Math.floor(Date.now() / 1000),
-        ip: "1.23.121.84", 
-      }
-    },
+    req.body,
     function (err, account) {
       // asynchronously called
       err ? res.send(err) : res.send(account);
