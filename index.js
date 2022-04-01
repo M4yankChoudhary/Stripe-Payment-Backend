@@ -29,43 +29,46 @@ app.post("/create-payment-intent", async (req, res) => {
 
   // Create or retrieve the Stripe Customer object associated with your user.
   let customer = await stripe.customers.create();
-  
+
   // Create an ephemeral key for the Customer; this allows the app to display saved payment methods and save new ones
   const ephemeralKey = await stripe.ephemeralKeys.create(
-    {customer: customer.id},
-    {apiVersion: '2020-08-27'}
-  );  
+    { customer: customer.id },
+    { apiVersion: "2020-08-27" }
+  );
 
   res.send({
     clientSecret: paymentIntent.client_secret,
     ephemeralK: ephemeralKey.secret,
     current_customer: customer.id,
-    publisherKey: "pk_test_51KhqrySJgjKVvQEwYUTn1XOegq8iLYQ7tFvI4BwSq88Q4GFf3lXQ38Tz4SRBbfHvCw9LXK4GTeaUW937VP06jlix00BPHZhEmo"
+    publisherKey:
+      "pk_test_51KhqrySJgjKVvQEwYUTn1XOegq8iLYQ7tFvI4BwSq88Q4GFf3lXQ38Tz4SRBbfHvCw9LXK4GTeaUW937VP06jlix00BPHZhEmo",
   });
 });
 app.get("/test", (req, res) => {
   res.send("Working");
 });
 
-app.post('/payout',(req,res)=>{
+app.post("/payout", (req, res) => {
   stripe.payouts.create(
-    {amount: 100,
-     currency: 'usd',
-     method: 'instant',
-     source_type:'card',
-     destination:'card_1Gk3XBAaf3EX2XJtXdruEv9N'
-    },{
-      
-      stripeAccount: 'acct_1GjKMqCpjAiF3DpZ',
+    {
+      amount: 100,
+      currency: "usd",
+      method: "instant",
+      source_type: "card",
+      destination: "card_1Gk3XBAaf3EX2XJtXdruEv9N",
     },
-    function(err, payout) {
-      if(err){
-          res.send(err);
-          console.log(err);
+    {
+      stripeAccount: "acct_1GjKMqCpjAiF3DpZ",
+    },
+    function (err, payout) {
+      if (err) {
+        res.send(err);
+        console.log(err);
       }
       res.send(payout);
-    });
-})
+    }
+  );
+});
 
 app.post("/transfer", (req, res) => {
   stripe.transfers.create(
@@ -95,15 +98,11 @@ app.post("/balance", async (re, res) => {
 });
 
 app.post("/addcard", (req, res) => {
- 
-  stripe.accounts.createExternalAccount(
-    req,
-    function (err, card) {
-      // asynchronously called
-      if (err) return res.send(err);
-      res.send(card);
-    }
-  );
+  stripe.accounts.createExternalAccount(req, function (err, card) {
+    // asynchronously called
+    if (err) return res.send(err);
+    res.send(card);
+  });
 });
 
 // app.post("/addcard", (req, res) => {
@@ -127,13 +126,10 @@ app.post("/addcard", (req, res) => {
 // });
 
 app.post("/createAccount", (req, res) => {
-  stripe.accounts.create(
-    req.body,
-    function (err, account) {
-      // asynchronously called
-      err ? res.send(err) : res.send(account.id);
-    }
-  );
+  stripe.accounts.create(req.body, function (err, account) {
+    // asynchronously called
+    err ? res.send(err) : res.send({ accountId: account.id });
+  });
 });
 
 // app.post("/createAccount", (req, res) => {
@@ -146,7 +142,7 @@ app.post("/createAccount", (req, res) => {
 //       business_type: "individual",
 //       tos_acceptance: {
 //         date: Math.floor(Date.now() / 1000),
-//         ip: "1.23.121.84", 
+//         ip: "1.23.121.84",
 //       },
 //       individual: {
 //         address: {
