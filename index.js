@@ -50,16 +50,7 @@ app.get("/test", (req, res) => {
 
 app.post("/payout", (req, res) => {
   stripe.payouts.create(
-    {
-      amount: 100,
-      currency: "usd",
-      method: "instant",
-      source_type: "card",
-      destination: "card_1Gk3XBAaf3EX2XJtXdruEv9N",
-    },
-    {
-      stripeAccount: "acct_1GjKMqCpjAiF3DpZ",
-    },
+    req,
     function (err, payout) {
       if (err) {
         res.send(err);
