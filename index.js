@@ -104,7 +104,7 @@ app.post("/addcard", (req, res) => {
 app.post("/createAccount", (req, res) => {
   stripe.accounts.create(
     {
-      type: "custom",
+      type: "express",
       country: "US",
       email: "mayank@gmail.com",
       requested_capabilities: ["card_payments", "transfers"],
