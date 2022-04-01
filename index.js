@@ -112,39 +112,7 @@ app.post("/createAccount", (req, res) => {
       tos_acceptance: {
         date: Math.floor(Date.now() / 1000),
         ip: "1.23.121.84", 
-      },
-      individual: {
-        address: {
-          line1: "address_full_match",
-          postal_code: "12345",
-          state: "Texas",
-          city: "Texas",
-        },
-        dob: {
-          day: "01",
-          month: "01",
-          year: "1901",
-        },
-        email: "mayank@gmail.com",
-        first_name: "Mayank",
-        last_name: "Choudhary",
-        phone: "7976694132",
-        id_number: "000000000",
-      },
-      business_profile: {
-        url: "http://mayankchoudhary.me",
-        mcc: 7512,
-      },
-      settings: {
-        payouts: {
-          schedule: {
-            delay_days: "minimum",
-            interval: "weekly",
-            weekly_anchor: "saturday",
-          },
-          statement_descriptor: "automatic payout check",
-        },
-      },
+      }
     },
     function (err, account) {
       // asynchronously called
@@ -152,6 +120,58 @@ app.post("/createAccount", (req, res) => {
     }
   );
 });
+
+// app.post("/createAccount", (req, res) => {
+//   stripe.accounts.create(
+//     {
+//       type: "express",
+//       country: "US",
+//       email: "mayank@gmail.com",
+//       requested_capabilities: ["card_payments", "transfers"],
+//       business_type: "individual",
+//       tos_acceptance: {
+//         date: Math.floor(Date.now() / 1000),
+//         ip: "1.23.121.84", 
+//       },
+//       individual: {
+//         address: {
+//           line1: "address_full_match",
+//           postal_code: "12345",
+//           state: "Texas",
+//           city: "Texas",
+//         },
+//         dob: {
+//           day: "01",
+//           month: "01",
+//           year: "1901",
+//         },
+//         email: "mayank@gmail.com",
+//         first_name: "Mayank",
+//         last_name: "Choudhary",
+//         phone: "7976694132",
+//         id_number: "000000000",
+//       },
+//       business_profile: {
+//         url: "http://mayankchoudhary.me",
+//         mcc: 7512,
+//       },
+//       settings: {
+//         payouts: {
+//           schedule: {
+//             delay_days: "minimum",
+//             interval: "weekly",
+//             weekly_anchor: "saturday",
+//           },
+//           statement_descriptor: "automatic payout check",
+//         },
+//       },
+//     },
+//     function (err, account) {
+//       // asynchronously called
+//       err ? res.send(err) : res.send(account);
+//     }
+//   );
+// });
 
 // app.post('/webhook', bodyParser.raw({type: 'application/json'}), (request, response) => {
 // let event;
