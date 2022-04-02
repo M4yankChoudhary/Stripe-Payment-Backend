@@ -102,19 +102,17 @@ app.get("", (req, res) => {
 
 // get btok (bank token) for adding it to a bank account
 app.post("/createBankToken", async (req, res) => {
-  const { country } = req.body;
-  const { currency } = req.body;
   const { account_holder_name } = req.body;
-  const { account_holder_type } = req.body;
   const { routing_number } = req.body;
   const { account_number } = req.body;
+
   try {
     const token = await stripe.tokens.create({
       bank_account: {
-        country: country,
-        currency: currency,
+        country: "GB",
+        currency: "gbp",
         account_holder_name: account_holder_name,
-        account_holder_type: account_holder_type,
+        account_holder_type: "individual",
         routing_number: routing_number,
         account_number: account_number,
       },
@@ -136,12 +134,11 @@ app.post("/createBankToken", async (req, res) => {
 // transfer money to a stripe connect account
 app.post("/transfer", async (req, res) => {
   const { amount } = req.body;
-  const { currency } = req.body;
   const { destination } = req.body;
   try {
     const transfer = await stripe.transfers.create({
       amount: amount,
-      currency: currency,
+      currency: "gbp",
       destination: destination,
     });
     res.send({
@@ -218,11 +215,6 @@ app.post("/createAccount", async (req, res) => {
   const { email } = req.body;
   const { first_name } = req.body;
   const { last_name } = req.body;
-  const { postal_code } = req.body;
-  const { state } = req.body;
-  const { city } = req.body;
-  const { phone } = req.body;
-  const { website } = req.body;
   try {
     const account = await stripe.accounts.create({
       type: "custom",
@@ -244,9 +236,9 @@ app.post("/createAccount", async (req, res) => {
       individual: {
         address: {
           line1: "address_full_match",
-          postal_code: postal_code,
-          state: state,
-          city: city,
+          postal_code: "SW1W 0NY",
+          state: "Texas",
+          city: "Texas",
         },
         dob: {
           day: "01",
@@ -256,11 +248,11 @@ app.post("/createAccount", async (req, res) => {
         email: email,
         first_name: first_name,
         last_name: last_name,
-        phone: phone,
+        phone:  "7976694567",
         id_number: "000000000",
       },
       business_profile: {
-        url: website,
+        url: "https://swapshop.me/",
         mcc: 7512,
       },
     });
@@ -277,90 +269,6 @@ app.post("/createAccount", async (req, res) => {
   }
 });
 
-// app.post("/createAccount", (req, res) => {
-//   stripe.accounts.create(
-//     {
-//       type: "express",
-//       country: "US",
-//       email: "mayank@gmail.com",
-//       requested_capabilities: ["card_payments", "transfers"],
-//       business_type: "individual",
-//       tos_acceptance: {
-//         date: Math.floor(Date.now() / 1000),
-//         ip: "1.23.121.84",
-//       },
-//       individual: {
-//         address: {
-//           line1: "address_full_match",
-//           postal_code: "12345",
-//           state: "Texas",
-//           city: "Texas",
-//         },
-//         dob: {
-//           day: "01",
-//           month: "01",
-//           year: "1901",
-//         },
-//         email: "mayank@gmail.com",
-//         first_name: "Mayank",
-//         last_name: "Choudhary",
-//         phone: "7976694132",
-//         id_number: "000000000",
-//       },
-//       business_profile: {
-//         url: "http://mayankchoudhary.me",
-//         mcc: 7512,
-//       },
-//       settings: {
-//         payouts: {
-//           schedule: {
-//             delay_days: "minimum",
-//             interval: "weekly",
-//             weekly_anchor: "saturday",
-//           },
-//           statement_descriptor: "automatic payout check",
-//         },
-//       },
-//     },
-//     function (err, account) {
-//       // asynchronously called
-//       err ? res.send(err) : res.send(account);
-//     }
-//   );
-// });
-
-// app.post('/webhook', bodyParser.raw({type: 'application/json'}), (request, response) => {
-// let event;
-
-// try {
-//   event = JSON.parse(request.body);
-//   console.log(event)
-// } catch (err) {
-//   response.status(400).send(`Webhook Error: ${err.message}`);
-// }
-
-// // Handle the event
-// switch (event.type) {
-//   case 'payout.failed':
-//     const paypal = event.data.object;
-//     console.log("failed",event)
-//     break;
-//   case 'payout.updated':
-//     const payoutUpdated = event.data.object;
-//     console.log("updated",event)
-//     break;
-//   case 'payout.paid':
-//     const payoutPaid = event.data.object;
-//     console.log("paid",event)
-//     break;
-//   default:
-//     // Unexpected event type
-//     return response.status(400).end();
-// }
-
-// // Return a response to acknowledge receipt of the event
-// response.json({received: true});
-// });
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Node server listening on port ${PORT}`));
