@@ -60,27 +60,28 @@ app.post("/create-payment-intent", async (req, res) => {
   });
 });
 
-app.get("/test", (req, res) => {
-  res.send("Working");
+app.get("", (req, res) => {
+  res.send("Server is up and running");
 });
 
-app.post("/payout", (req, res) => {
-  stripe.accounts.createExternalAccount(
-    "acct_1KjohySAqc8rIN9R",
-    {
-      // card_1KjoBvSJgjKVvQEw4HAucGg8
-      external_account: {
-        object: "card_1KjoBvSJgjKVvQEw4HAucGg8",
-      },
-    },
-    function (err, card) {
-      // asynchronously called
-      if (err) return res.send(err);
-      res.send(card);
-    }
-  );
-});
+// app.post("/payout", (req, res) => {
+//   stripe.accounts.createExternalAccount(
+//     "acct_1KjohySAqc8rIN9R",
+//     {
+//       // card_1KjoBvSJgjKVvQEw4HAucGg8
+//       external_account: {
+//         object: "card_1KjoBvSJgjKVvQEw4HAucGg8",
+//       },
+//     },
+//     function (err, card) {
+//       // asynchronously called
+//       if (err) return res.send(err);
+//       res.send(card);
+//     }
+//   );
+// });
 
+// get btok (bank token) for adding it to a bank account 
 app.post("/createBankToken", async (req, res) => {
   const { country } = req.body;
   const { currency } = req.body;
@@ -107,13 +108,16 @@ app.post("/createBankToken", async (req, res) => {
   }
 });
 
+// transfer money to a stripe connect account
 app.post("/transfer", (req, res) => {
+  const { amount } = req.body;
+  const { currency } = req.body;
+  const { destination } = req.body;
   stripe.transfers.create(
     {
-      amount: 5000,
-      currency: "gbp",
-      destination: "acct_1KjprWRCvLSod7Cc",
-      // transfer_group: "ORDER_95",
+      amount: amount,
+      currency: currency,
+      destination: destination,
     },
     function (err, transfer) {
       // asynchronously called
@@ -126,6 +130,7 @@ app.post("/transfer", (req, res) => {
   );
 });
 
+// get all balance of the organization
 app.post("/balance", async (req, res) => {
   stripe.balance.retrieve(function (err, balance) {
     // asynchronously called
@@ -134,7 +139,8 @@ app.post("/balance", async (req, res) => {
   });
 });
 
-app.post("/balance/acount", async (req, res) => {
+// get balance of particular account
+app.post("/balance/account", async (req, res) => {
   try {
     const { stripeAccount } = req.body;
     const balance = await stripe.balance.retrieve({
@@ -145,34 +151,16 @@ app.post("/balance/acount", async (req, res) => {
     res.send(e)
     console.log(e)
   }
-
-  // stripe.balance.retrieve(function (err, balance) {
-  //   // asynchronously called
-  //   stripeAccount: '{{CONNECTED_STRIPE_ACCOUNT_ID}}'
-  //   if (err) res.send(err);
-  //   res.send(balance);
-  // });
 });
 
-// app.post("/addcard", async (req, res) => {
-//   stripe.accounts.createExternalAccount(req, function (err, card) {
-//     // asynchronously called
-
-//     if (err) return res.send(err);
-//     res.send(card);
-//   });
-
-//   // const card = await stripe.customers.createSource("cus_LQeHjz3WopRHFs", {
-//   //   source: "tok_1KjoHKSJgjKVvQEwuKAC0Idj",
-//   // });
-//   // res.send(card);
-// });
-
-app.post("/addcard", (req, res) => {
+// add bank account to connected(which we created with create account endpoint) account
+app.post("/addBankAccount", (req, res) => {
+  const { account } = req.body;
+  const { token } = req.body;
   stripe.accounts.createExternalAccount(
-    "acct_1KjprWRCvLSod7Cc",
+    account,
     {
-      external_account: "btok_1KjyVaEVPhT8RTjURHXWsBnO",
+      external_account: token,
     },
     function (err, card) {
       // asynchronously called
@@ -182,6 +170,7 @@ app.post("/addcard", (req, res) => {
   );
 });
 
+// create a user account to connect account
 app.post("/createAccount", (req, res) => {
   stripe.accounts.create(req.body, function (err, account) {
     // asynchronously called
