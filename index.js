@@ -81,31 +81,30 @@ app.post("/payout", (req, res) => {
   );
 });
 
-app.post("/tokenCreate", (req, res) => {
-  var param = {};
-  // param.card = {
-  //   currency: "gbp",
-  //   number: 4000056655665556,
-  //   exp_month: 2,
-  //   exp_year: 2024,
-  //   cvc: "212",
-  // };
-  param.bank_account = {
-    country: 'GB',
-    currency: 'gbp',
-    account_holder_name: 'Jenny Rosen',
-    account_holder_type: 'individual',
-    routing_number: '108800',
-    account_number: '00012345',
+app.post("/createBankToken", async (req, res) => {
+  const { country } = req.body;
+  const { currency } = req.body;
+  const { account_holder_name } = req.body;
+  const { account_holder_type } = req.body;
+  const { routing_number } = req.body;
+  const { account_number } = req.body;
+  try {
+    const token = await stripe.tokens.create({
+      bank_account: {
+        country: country,
+        currency: currency,
+        account_holder_name: account_holder_name,
+        account_holder_type: account_holder_type,
+        routing_number: routing_number,
+        account_number: account_number,
+      },
+    });
+    console.log(token)
+    res.send(token)
+  } catch(e) {
+    res.send(e)
+    console.log(e)
   }
-  stripe.tokens.create(param, function (err, token) {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log(token);
-      res.send(res);
-    }
-  });
 });
 
 app.post("/transfer", (req, res) => {
@@ -127,12 +126,32 @@ app.post("/transfer", (req, res) => {
   );
 });
 
-app.post("/balance", async (re, res) => {
+app.post("/balance", async (req, res) => {
   stripe.balance.retrieve(function (err, balance) {
     // asynchronously called
     if (err) res.send(err);
     res.send(balance);
   });
+});
+
+app.post("/balance/acount", async (req, res) => {
+  try {
+    const { stripeAccount } = req.body;
+    const balance = await stripe.balance.retrieve({
+      stripeAccount: stripeAccount,
+    });
+    res.send(balance)
+  } catch(e) {
+    res.send(e)
+    console.log(e)
+  }
+
+  // stripe.balance.retrieve(function (err, balance) {
+  //   // asynchronously called
+  //   stripeAccount: '{{CONNECTED_STRIPE_ACCOUNT_ID}}'
+  //   if (err) res.send(err);
+  //   res.send(balance);
+  // });
 });
 
 // app.post("/addcard", async (req, res) => {
