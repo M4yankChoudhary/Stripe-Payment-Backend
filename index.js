@@ -49,15 +49,27 @@ const calculateOrderAmount = (items) => {
 app.post("/create-payment-intent", async (req, res) => {
   const { items } = req.body;
   const { currency } = req.body;
-  console.log(currency);
+  console.log(req.body);
 
   // Create a PaymentIntent with the order amount and currency
   const paymentIntent = await stripe.paymentIntents.create({
     amount: calculateOrderAmount(items),
     currency: currency,
   });
+
+  // Create or retrieve the Stripe Customer object associated with your user.
+  let customer = await stripe.customers.create();
+
+  // Create an ephemeral key for the Customer; this allows the app to display saved payment methods and save new ones
+  const ephemeralKey = await stripe.ephemeralKeys.create(
+    { customer: customer.id },
+    { apiVersion: "2020-08-27" }
+  );
+
   res.send({
     clientSecret: paymentIntent.client_secret,
+    ephemeralK: ephemeralKey.secret,
+    current_customer: customer.id,
   });
 });
 
@@ -82,7 +94,7 @@ app.get("", (req, res) => {
 //   );
 // });
 
-// get btok (bank token) for adding it to a bank account 
+// get btok (bank token) for adding it to a bank account
 app.post("/createBankToken", async (req, res) => {
   const { country } = req.body;
   const { currency } = req.body;
@@ -101,11 +113,17 @@ app.post("/createBankToken", async (req, res) => {
         account_number: account_number,
       },
     });
-    console.log(token)
-    res.send(token)
-  } catch(e) {
-    res.send(e)
-    console.log(e)
+    console.log(token);
+    res.send({
+      token: token.id,
+      message: "Failed to create token!",
+      success: true,
+    });
+  } catch (e) {
+    res.send({
+      success: false,
+    });
+    console.log(e);
   }
 });
 
@@ -116,26 +134,33 @@ app.post("/transfer", async (req, res) => {
   const { destination } = req.body;
   try {
     const transfer = await stripe.transfers.create({
-        amount: amount,
-        currency: currency,
-        destination: destination,
+      amount: amount,
+      currency: currency,
+      destination: destination,
     });
-    res.send(transfer)
-    console.log(transfer)
-  } catch(e) {
-    res.send(e)
-    console.log(e)
+    res.send({
+      success: true,
+      message: "Transfer Successful!"
+    });
+    console.log(transfer);
+  } catch (e) {
+    res.send({
+      success: false,
+      message: "Transfer failed!"
+    });
+    console.log(e);
   }
- 
 });
 
 // get all balance of the organization
 app.post("/balance", async (req, res) => {
-  stripe.balance.retrieve(function (err, balance) {
-    // asynchronously called
-    if (err) res.send(err);
+  try {
+    const balance = await stripe.balance.retrieve();
     res.send(balance);
-  });
+  } catch (e) {
+    res.send(e);
+    console.log(e);
+  }
 });
 
 // get balance of particular account
@@ -145,35 +170,42 @@ app.post("/balance/account", async (req, res) => {
     const balance = await stripe.balance.retrieve({
       stripeAccount: stripeAccount,
     });
-    res.send(balance)
-  } catch(e) {
-    res.send(e)
-    console.log(e)
+    res.send(balance);
+  } catch (e) {
+    res.send(e);
+    console.log(e);
   }
 });
 
 // add bank account to connected(which we created with create account endpoint) account
 app.post("/addBankAccount", (req, res) => {
+
   const { account } = req.body;
   const { token } = req.body;
-  stripe.accounts.createExternalAccount(
-    account,
-    {
+  try {
+    const cardToken = await stripe.accounts.createExternalAccount( account, {
       external_account: token,
-    },
-    function (err, card) {
-      // asynchronously called
-      if (err) return res.send(err);
-      res.send(card);
-    }
-  );
+    });
+    res.send({token:cardToken.id, message: "Account Added", success: true});
+  } catch (e) {
+    res.send({
+      success: false
+    });
+    console.log(e);
+  }
 });
 
 // create a user account to connect account
 app.post("/createAccount", (req, res) => {
   stripe.accounts.create(req.body, function (err, account) {
     // asynchronously called
-    err ? res.send(err) : res.send({ accountId: account });
+    err
+      ? res.send({
+          success: false,
+          accountId: null,
+          error: err,
+        })
+      : res.send({ accountId: account.id, success: true });
   });
 });
 
