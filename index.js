@@ -10,40 +10,10 @@ const stripe = require("stripe")(
 app.use(express.static("."));
 app.use(express.json());
 const calculateOrderAmount = (items) => {
-  // Replace this constant with a calculation of the order's amount
-  // Calculate the order total on the server to prevent
-  // people from directly manipulating the amount on the client
   console.log(items[0].amount);
   return items[0].amount;
 };
-// app.post("/create-payment-intent", async (req, res) => {
-//   const { items } = req.body;
-//   const { currency } = req.body;
-//   console.log(req.body);
 
-//   // Create a PaymentIntent with the order amount and currency
-//   const paymentIntent = await stripe.paymentIntents.create({
-//     amount: calculateOrderAmount(items),
-//     currency: currency,
-//   });
-
-//   // Create or retrieve the Stripe Customer object associated with your user.
-//   let customer = await stripe.customers.create();
-
-//   // Create an ephemeral key for the Customer; this allows the app to display saved payment methods and save new ones
-//   const ephemeralKey = await stripe.ephemeralKeys.create(
-//     { customer: customer.id },
-//     { apiVersion: "2020-08-27" }
-//   );
-
-//   res.send({
-//     clientSecret: paymentIntent.client_secret,
-//     ephemeralK: ephemeralKey.secret,
-//     current_customer: customer.id,
-//     publisherKey:
-//       "pk_test_51KhqrySJgjKVvQEwYUTn1XOegq8iLYQ7tFvI4BwSq88Q4GFf3lXQ38Tz4SRBbfHvCw9LXK4GTeaUW937VP06jlix00BPHZhEmo",
-//   });
-// });
 
 // create payment intent for secure payment
 app.post("/create-payment-intent", async (req, res) => {
@@ -67,6 +37,7 @@ app.post("/create-payment-intent", async (req, res) => {
     );
 
     res.send({
+      publishableKey: "pk_test_51Hv7mcEVPhT8RTjUDqMes8WIjZXxP6g71HiT7l2TmhVwf1qgMLKPd6i7iSh0NX7Anul4qFKVOveJasQobeTBG3ju00twHUiNCk",
       clientSecret: paymentIntent.client_secret,
       ephemeralK: ephemeralKey.secret,
       current_customer: customer.id,
