@@ -5,7 +5,7 @@ const app = express();
 const { resolve } = require("path");
 // This is your real test secret API key.
 const stripe = require("stripe")(
-  "sk_test_51KhqrySJgjKVvQEwrQsy7wGKF9yRlEX0GdcgTyBzKjfEIGc0MYfBCaAH2xWztj1AjRh9RfFdg8BXuKf3AXAwInAB00lWfhSrIl"
+  "sk_test_51Hv7mcEVPhT8RTjUXpoDt0Ouq8dN1IsHZBeESVLPcp4iTbIxl4Bvc3YyUKiBpquGvmGXhcTrVuDztYHpyavwXoet00n4rNVKPU"
 );
 app.use(express.static("."));
 app.use(express.json());
@@ -16,58 +16,105 @@ const calculateOrderAmount = (items) => {
   console.log(items[0].amount);
   return items[0].amount;
 };
+// app.post("/create-payment-intent", async (req, res) => {
+//   const { items } = req.body;
+//   const { currency } = req.body;
+//   console.log(req.body);
+
+//   // Create a PaymentIntent with the order amount and currency
+//   const paymentIntent = await stripe.paymentIntents.create({
+//     amount: calculateOrderAmount(items),
+//     currency: currency,
+//   });
+
+//   // Create or retrieve the Stripe Customer object associated with your user.
+//   let customer = await stripe.customers.create();
+
+//   // Create an ephemeral key for the Customer; this allows the app to display saved payment methods and save new ones
+//   const ephemeralKey = await stripe.ephemeralKeys.create(
+//     { customer: customer.id },
+//     { apiVersion: "2020-08-27" }
+//   );
+
+//   res.send({
+//     clientSecret: paymentIntent.client_secret,
+//     ephemeralK: ephemeralKey.secret,
+//     current_customer: customer.id,
+//     publisherKey:
+//       "pk_test_51KhqrySJgjKVvQEwYUTn1XOegq8iLYQ7tFvI4BwSq88Q4GFf3lXQ38Tz4SRBbfHvCw9LXK4GTeaUW937VP06jlix00BPHZhEmo",
+//   });
+// });
+
 app.post("/create-payment-intent", async (req, res) => {
   const { items } = req.body;
   const { currency } = req.body;
-  console.log(req.body);
+  console.log(currency);
 
   // Create a PaymentIntent with the order amount and currency
   const paymentIntent = await stripe.paymentIntents.create({
     amount: calculateOrderAmount(items),
     currency: currency,
   });
-
-  // Create or retrieve the Stripe Customer object associated with your user.
-  let customer = await stripe.customers.create();
-
-  // Create an ephemeral key for the Customer; this allows the app to display saved payment methods and save new ones
-  const ephemeralKey = await stripe.ephemeralKeys.create(
-    { customer: customer.id },
-    { apiVersion: "2020-08-27" }
-  );
-
   res.send({
     clientSecret: paymentIntent.client_secret,
-    ephemeralK: ephemeralKey.secret,
-    current_customer: customer.id,
-    publisherKey:
-      "pk_test_51KhqrySJgjKVvQEwYUTn1XOegq8iLYQ7tFvI4BwSq88Q4GFf3lXQ38Tz4SRBbfHvCw9LXK4GTeaUW937VP06jlix00BPHZhEmo",
   });
 });
+
 app.get("/test", (req, res) => {
   res.send("Working");
 });
 
 app.post("/payout", (req, res) => {
-  stripe.payouts.create(
-    req,
-    function (err, payout) {
-      if (err) {
-        res.send(err);
-        console.log(err);
-      }
-      res.send(payout);
+  stripe.accounts.createExternalAccount(
+    "acct_1KjohySAqc8rIN9R",
+    {
+      // card_1KjoBvSJgjKVvQEw4HAucGg8
+      external_account: {
+        object: "card_1KjoBvSJgjKVvQEw4HAucGg8",
+      },
+    },
+    function (err, card) {
+      // asynchronously called
+      if (err) return res.send(err);
+      res.send(card);
     }
   );
+});
+
+app.post("/tokenCreate", (req, res) => {
+  var param = {};
+  // param.card = {
+  //   currency: "gbp",
+  //   number: 4000056655665556,
+  //   exp_month: 2,
+  //   exp_year: 2024,
+  //   cvc: "212",
+  // };
+  param.bank_account = {
+    country: 'GB',
+    currency: 'gbp',
+    account_holder_name: 'Jenny Rosen',
+    account_holder_type: 'individual',
+    routing_number: '108800',
+    account_number: '00012345',
+  }
+  stripe.tokens.create(param, function (err, token) {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(token);
+      res.send(res);
+    }
+  });
 });
 
 app.post("/transfer", (req, res) => {
   stripe.transfers.create(
     {
-      amount: 1000,
-      currency: "usd",
-      destination: "acct_1Giz8XAaf3EX2XJt",
-      transfer_group: "ORDER_95",
+      amount: 5000,
+      currency: "gbp",
+      destination: "acct_1KjprWRCvLSod7Cc",
+      // transfer_group: "ORDER_95",
     },
     function (err, transfer) {
       // asynchronously called
@@ -88,38 +135,38 @@ app.post("/balance", async (re, res) => {
   });
 });
 
-app.post("/addcard", (req, res) => {
-  stripe.accounts.createExternalAccount(req, function (err, card) {
-    // asynchronously called
-    if (err) return res.send(err);
-    res.send(card);
-  });
-});
+// app.post("/addcard", async (req, res) => {
+//   stripe.accounts.createExternalAccount(req, function (err, card) {
+//     // asynchronously called
 
-// app.post("/addcard", (req, res) => {
-//   stripe.accounts.createExternalAccount(
-//     "acct_1KjjhwHxUOYLqICx",
-//     {
-//       external_account: {
-//         object: "card",
-//         number: "4000056655665556",
-//         exp_month: 5,
-//         exp_year: 2021,
-//         currency: "usd",
-//       },
-//     },
-//     function (err, card) {
-//       // asynchronously called
-//       if (err) return res.send(err);
-//       res.send(card);
-//     }
-//   );
+//     if (err) return res.send(err);
+//     res.send(card);
+//   });
+
+//   // const card = await stripe.customers.createSource("cus_LQeHjz3WopRHFs", {
+//   //   source: "tok_1KjoHKSJgjKVvQEwuKAC0Idj",
+//   // });
+//   // res.send(card);
 // });
+
+app.post("/addcard", (req, res) => {
+  stripe.accounts.createExternalAccount(
+    "acct_1KjprWRCvLSod7Cc",
+    {
+      external_account: "btok_1KjyVaEVPhT8RTjURHXWsBnO",
+    },
+    function (err, card) {
+      // asynchronously called
+      if (err) return res.send(err);
+      res.send(card);
+    }
+  );
+});
 
 app.post("/createAccount", (req, res) => {
   stripe.accounts.create(req.body, function (err, account) {
     // asynchronously called
-    err ? res.send(err) : res.send({ accountId: account.id });
+    err ? res.send(err) : res.send({ accountId: account });
   });
 });
 
