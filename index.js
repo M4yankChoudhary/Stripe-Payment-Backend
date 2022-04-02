@@ -45,6 +45,7 @@ const calculateOrderAmount = (items) => {
 //   });
 // });
 
+// create payment intent for secure payment
 app.post("/create-payment-intent", async (req, res) => {
   const { items } = req.body;
   const { currency } = req.body;
@@ -109,25 +110,23 @@ app.post("/createBankToken", async (req, res) => {
 });
 
 // transfer money to a stripe connect account
-app.post("/transfer", (req, res) => {
+app.post("/transfer", async (req, res) => {
   const { amount } = req.body;
   const { currency } = req.body;
   const { destination } = req.body;
-  stripe.transfers.create(
-    {
-      amount: amount,
-      currency: currency,
-      destination: destination,
-    },
-    function (err, transfer) {
-      // asynchronously called
-      if (err) {
-        res.send(err);
-        console.log(err);
-      }
-      res.send(transfer);
-    }
-  );
+  try {
+    const transfer = await stripe.transfers.create({
+        amount: amount,
+        currency: currency,
+        destination: destination,
+    });
+    res.send(transfer)
+    console.log(transfer)
+  } catch(e) {
+    res.send(e)
+    console.log(e)
+  }
+ 
 });
 
 // get all balance of the organization
