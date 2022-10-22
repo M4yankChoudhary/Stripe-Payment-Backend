@@ -5,7 +5,7 @@ const app = express();
 const { resolve } = require("path");
 // This is your real test secret API key.
 const stripe = require("stripe")(
-  "sk_test_51Hv7mcEVPhT8RTjUXpoDt0Ouq8dN1IsHZBeESVLPcp4iTbIxl4Bvc3YyUKiBpquGvmGXhcTrVuDztYHpyavwXoet00n4rNVKPU"
+  "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"
 );
 app.use(express.static("."));
 app.use(express.json());
