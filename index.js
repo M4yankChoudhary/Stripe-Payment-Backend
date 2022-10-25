@@ -37,7 +37,7 @@ app.post("/create-payment-intent", async (req, res) => {
     );
 
     res.send({
-      publishableKey: "pk_test_51Hv7mcEVPhT8RTjUDqMes8WIjZXxP6g71HiT7l2TmhVwf1qgMLKPd6i7iSh0NX7Anul4qFKVOveJasQobeTBG3ju00twHUiNCk",
+      publishableKey: "pk_live_51Hv7mcEVPhT8RTjU6JaPBNY0X56yhVx38liHayutrkmUQXkedtNDgz6uG35TMZXiAMJ7WqNlmgyrFMFF4UY3fTRZ00IL5TJv21",
       clientSecret: paymentIntent.client_secret,
       ephemeralK: ephemeralKey.secret,
       current_customer: customer.id,
