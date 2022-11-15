@@ -190,13 +190,44 @@ app.post("/createAccount", async (req, res) => {
   const { last_name } = req.body;
   try {
     const account = await stripe.accounts.create({
-       type: "custom",
+      type: "custom",
       country: "GB",
+      requested_capabilities: ['card_payments', 'transfers'],
       email: email,
-      type: 'custom',
-      capabilities: {
-        card_payments: {requested: true},
-        transfers: {requested: true},
+      // capabilities: {
+      //   card_payments: {
+      //     requested: true,
+      //   },
+      //   transfers: {
+      //     requested: true,
+      //   },
+      // },
+      business_type: "individual",
+      tos_acceptance: {
+        date: Math.floor(Date.now() / 1000),
+        ip: "1.23.121.84",
+      },
+      individual: {
+        address: {
+          line1: "address_full_match",
+          postal_code: "SW1W 0NY",
+          state: "Texas",
+          city: "Texas",
+        },
+        dob: {
+          day: "01",
+          month: "01",
+          year: "1901",
+        },
+        email: email,
+        first_name: first_name,
+        last_name: last_name,
+        phone:  "7976694567",
+        id_number: "000000000",
+      },
+      business_profile: {
+        url: "https://swapshop.me/",
+        mcc: 7512,
       },
     });
     res.send({
