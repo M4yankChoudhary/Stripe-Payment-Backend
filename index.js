@@ -5,7 +5,7 @@ const app = express();
 const { resolve } = require("path");
 // This is your real test secret API key.
 const stripe = require("stripe")(
-  "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"
+  ""
  //"sk_test_51Hv7mcEVPhT8RTjUXpoDt0Ouq8dN1IsHZBeESVLPcp4iTbIxl4Bvc3YyUKiBpquGvmGXhcTrVuDztYHpyavwXoet00n4rNVKPU"
 );
 app.use(express.static("."));
@@ -39,7 +39,7 @@ app.post("/create-payment-intent", async (req, res) => {
 
     res.send({
       // publishableKey: "pk_test_51Hv7mcEVPhT8RTjUDqMes8WIjZXxP6g71HiT7l2TmhVwf1qgMLKPd6i7iSh0NX7Anul4qFKVOveJasQobeTBG3ju00twHUiNCk",
-      publishableKey: "pk_live_51Hv7mcEVPhT8RTjU6JaPBNY0X56yhVx38liHayutrkmUQXkedtNDgz6uG35TMZXiAMJ7WqNlmgyrFMFF4UY3fTRZ00IL5TJv21",
+      publishableKey: "",
       clientSecret: paymentIntent.client_secret,
       ephemeralK: ephemeralKey.secret,
       current_customer: customer.id,
